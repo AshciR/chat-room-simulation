@@ -1,4 +1,4 @@
-const chatRoomEvents = [
+const getChatRoomEvents = [
     { delta: 1000, payload: { type: 'message', user: { id: 1, user_name: 'taco', display_name: 'Taco Spolsky' }, message: { id: 1, text: "Hello!" } }},
     { delta: 2000, payload: { type: 'message', user: { id: 2, user_name: 'chorizo', display_name: 'Chorizo' }, message: { id: 2, text: "Hi Taco!" } }},
     { delta: 2100, payload: { type: 'connect', user: { id: 3, user_name: 'pete', display_name: 'Pete the Computer' } }},
@@ -30,4 +30,4 @@ const chatRoomEvents = [
     { delta: 66000, payload: { type: 'disconnect', user: { id: 3, user_name: 'pete', display_name: 'Pete the Computer' } }}
 ];
 
-export default chatRoomEvents;
+export default getChatRoomEvents;

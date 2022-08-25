@@ -19,6 +19,9 @@ aren't flushed out, the Major version will remain at 0.
 
 For more info about semantic versioning, see the following documentation. https://semver.org/   
 
+### Design Decisions
+See my high-level design decisions [here](DesignDecisions.md).
+
 ### How do I get set up? ###
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

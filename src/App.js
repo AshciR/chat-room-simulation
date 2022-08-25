@@ -1,25 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import ChatBubble from "./components/ChatBubble/ChatBubble";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    // Just testing out the component that we'll use later
+    const message = {
+        userName: 'Richie',
+        content: 'Hello World',
+        isOwner: true,
+        time: '6:00'
+    }
+
+    return (
+        <ChatBubble
+            userName={message.userName}
+            message={message.content}
+            isOwner={true}
+            time={message.time}
+        />
+    );
 }
 
 export default App;

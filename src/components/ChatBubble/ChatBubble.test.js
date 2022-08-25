@@ -1,34 +1,40 @@
 import {render, screen} from "@testing-library/react";
 import ChatBubble from "./ChatBubble";
 
-it('displays the correct data in the chat bubble', () => {
+describe('ChatBubble tests', () => {
 
-    // Given: We have message data
-    const message = {
-        userName: 'Richie',
-        content: 'Hello World',
-        isOwner: true,
-        time: '6:00'
-    }
+    it('displays the correct data in the chat bubble', () => {
 
-    // When: The Chat Bubble renders with proper data
-    render(<ChatBubble
-        userName={message.userName}
-        message={message.content}
-        isOwner={true}
-        time={message.time}
-    />);
+        // Given: We have message data
+        const message = {
+            userName: 'Richie',
+            content: 'Hello World',
+            isOwner: true,
+            time: '6:00'
+        }
 
-    // Then: The information should be displayed
-    const content = screen.getByText(message.content);
-    expect(content).toBeInTheDocument();
+        // When: The Chat Bubble renders with proper data
+        render(<ChatBubble
+            userName={message.userName}
+            message={message.content}
+            isOwner={true}
+            time={message.time}
+        />);
 
-    const avatar = screen.getByText(message.userName.charAt(0));
-    expect(avatar).toBeInTheDocument();
+        // Then: The information should be displayed
+        const content = screen.getByText(message.content);
+        expect(content).toBeInTheDocument();
 
-    const userName = screen.getByText(message.userName);
-    expect(userName).toBeInTheDocument();
+        const avatar = screen.getByText(message.userName.charAt(0));
+        expect(avatar).toBeInTheDocument();
 
-    const deliveryTime = screen.getByText(`Delivered at: ${message.time}`);
-    expect(deliveryTime).toBeInTheDocument();
+        const userName = screen.getByText(message.userName);
+        expect(userName).toBeInTheDocument();
+
+        const deliveryTime = screen.getByText(`Delivered at: ${message.time}`);
+        expect(deliveryTime).toBeInTheDocument();
+    });
+
 });
+
+

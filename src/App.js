@@ -1,23 +1,18 @@
 import './App.css';
-import ChatBubble from "./components/ChatBubble/ChatBubble";
+import ChatRoom from "./components/ChatRoom/ChatRoom";
+import {Box} from "@mui/material";
 
 function App() {
 
-    // Just testing out the component that we'll use later
-    const message = {
-        userName: 'Richie',
-        content: 'Hello World',
-        isOwner: true,
-        time: '6:00'
-    }
-
     return (
-        <ChatBubble
-            userName={message.userName}
-            message={message.content}
-            isOwner={true}
-            time={message.time}
-        />
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 2 // MUI translates it to 16px. Each unit is 8px
+        }}
+        >
+            <ChatRoom data-testid="test-chat-room"/>
+        </Box>
     );
 }
 

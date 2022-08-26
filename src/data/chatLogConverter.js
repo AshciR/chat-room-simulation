@@ -17,6 +17,8 @@ const convertChatLogEventToChatRoomEvent = (chatLogEvents) => {
     const messagesGroupedById = groupEventsByMessageId(messageEvents);
 
     // Step 3: Group the User events so that I can track the state transitions
+    const eventsWithUserData = filterEventsWithUserData(chatLogEvents);
+    const eventsGroupedByUserId = groupEventsByUserId(eventsWithUserData);
 
     // Step 4: Convert each the Chat log event into a ChatRoom event
 
@@ -79,7 +81,51 @@ const groupEventsByMessageId = (messageEvents) => {
 
 };
 
+// Could consider adding the below methods into a different file,
+// but I'm running low on time, and I'm getting a bit tired tbh :(
+
+/**
+ * Filters out the chat log events that have
+ * user data in the payload.
+ * @param events the chat log events
+ * @return {*[]}
+ */
+const filterEventsWithUserData = (events) => {
+    return events.filter(event => doesEventHaveUserData(event));
+};
+
+/**
+ * Determines if a chat log even has user data in it
+ * @param event chat log event
+ * @return {boolean} true if event the payload has user data in the payload
+ */
+const doesEventHaveUserData = (event) => {
+    return Object.keys(event.payload).includes('user');
+};
+
+/**
+ * Creating a Map/Dictionary where the key
+ * is the user id and the value is the events
+ * associated with the user.
+ * @param eventsWithUsers events that have user data in the payload
+ * @return {*[]}
+ */
+const groupEventsByUserId = (eventsWithUsers) => {
+
+    // I'm using reduce instead of a traditional for loop
+    // because I advocate for functional programming
+    // and non-mutational code.
+    return eventsWithUsers.reduce((acc, event) => {
+        acc[event.payload.user.id] = acc[event.payload.user.id] ? [...acc[event.payload.user.id], event] : [event]
+        return acc
+    }, {});
+
+};
+
 export default convertChatLogEventToChatRoomEvent;
 // Ideally, I'd love if some of these methods were only exposed within this file
 // But, I need to export them to write unit tests.
-export {sortChatLogEvents, filterMessageEvents, groupEventsByMessageId};
+export {
+    sortChatLogEvents, filterMessageEvents, groupEventsByMessageId,
+    filterEventsWithUserData, groupEventsByUserId
+};

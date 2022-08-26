@@ -1,4 +1,10 @@
-import {filterMessageEvents, groupEventsByMessageId, sortChatLogEvents} from "./chatLogConverter";
+import {
+    filterEventsWithUserData,
+    filterMessageEvents,
+    groupEventsByMessageId,
+    groupEventsByUserId,
+    sortChatLogEvents
+} from "./chatLogConverter";
 
 describe('chatLogConverter tests', () => {
 
@@ -117,6 +123,35 @@ describe('chatLogConverter tests', () => {
 
     })
 
+    it('filters out the events with user data', () => {
+        // Given: We have an array of chat log events
+
+        // When: We filter out the user data events
+        const userDataEvents = filterEventsWithUserData(getMockChatLogEvents);
+
+        // Then: The array should only have message events
+        expect(userDataEvents.length).toBe(6);
+
+        // And: The update user event should be present
+        const updatedUser = userDataEvents.find(event => event.delta === 6600);
+        expect(updatedUser.payload.type).toBe('update');
+        expect(updatedUser.payload.user.id).toBe(2);
+        expect(updatedUser.payload.user.username).toBe("chorizothecat");
+    })
+
+    it('groups the events by their user id', () => {
+
+        // Given: You only have user events
+        const userEvents = filterEventsWithUserData(getMockChatLogEvents);
+
+        // When: They are grouped by user id
+        const messageEventsGroupedByUserId = groupEventsByUserId(userEvents);
+
+        // Then: They are grouped correctly
+        expect(messageEventsGroupedByUserId).toStrictEqual(getExpectedEventGroupedByUserId);
+
+    })
+
 });
 
 const getMockChatLogEvents = [
@@ -188,5 +223,44 @@ const getExpectedMessagesGroupedById = {
             payload: {type: 'update', message: {id: 6, text: "Seems like it's working find … for *edits* also"}}
         },
     ],
-    9: [ {delta: 12000, payload: {type: 'delete', message: {id: 9}}}]
+    9: [{delta: 12000, payload: {type: 'delete', message: {id: 9}}}]
+};
+
+const getExpectedEventGroupedByUserId = {
+    1: [
+        {
+            delta: 1000,
+            payload: {
+                type: 'message',
+                user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'},
+                message: {id: 1, text: "Hello!"}
+            }
+        },
+        {delta: 31002, payload: {type: 'disconnect', user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'}}},
+    ],
+    2: [
+        {
+            delta: 2000,
+            payload: {
+                type: 'message',
+                user: {id: 2, user_name: 'chorizo', display_name: 'Chorizo'},
+                message: {id: 2, text: "Hi Taco!"}
+            }
+        },
+        {
+            delta: 6600,
+            payload: {type: 'update', user: {id: 2, username: 'chorizothecat', display_name: 'Chorizo the Cat'}}
+        },
+    ],
+    3: [
+        {delta: 2100, payload: {type: 'connect', user: {id: 3, user_name: 'pete', display_name: 'Pete the Computer'}}},
+        {
+            delta: 6000,
+            payload: {
+                type: 'message',
+                user: {id: 3, user_name: 'pete', display_name: 'Pete the Computer'},
+                message: {id: 6, text: "Seems like it's working fine … in the *simple* case :)"}
+            }
+        },
+    ],
 };

@@ -416,7 +416,7 @@ describe('chatLogConverter tests', () => {
         const chatRoomEvents = convertChatLogEventsToChatRoomEvents(chatLogConnectEvents);
 
         // Then: It should have the correct data
-        expect(chatRoomEvents.length).toBe(28);
+        expect(chatRoomEvents.length).toBe(25);
     })
 
 });

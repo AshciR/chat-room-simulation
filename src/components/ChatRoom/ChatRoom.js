@@ -3,9 +3,7 @@ import ChatBubble from "../ChatBubble/ChatBubble";
 import ChatNotification from "../ChatNotification/ChatNotification";
 
 
-const ChatRoom = ({chatRoomNotifications, userId = 1}) => {
-
-    console.log({chatRoomNotifications: chatRoomNotifications});
+const ChatRoom = ({chatRoomNotifications, userId}) => {
 
     const convertToChatBubbleOrChatNotification = notification => {
 
@@ -30,7 +28,9 @@ const ChatRoom = ({chatRoomNotifications, userId = 1}) => {
             variant="outlined"
             sx={{
                 width: 800,
-                padding: 1
+                padding: 1,
+                marginTop: 2, // MUI translates it to 16px. Each unit is 8px
+                marginBottom: 2, // MUI translates it to 16px. Each unit is 8px
             }}
             data-testid="test-chat-room"
         >
@@ -39,34 +39,6 @@ const ChatRoom = ({chatRoomNotifications, userId = 1}) => {
                 spacing={1}
             >
                 {chatRoomNotifications.map(notification => convertToChatBubbleOrChatNotification(notification))}
-                {/*<ChatBubble*/}
-                {/*    displayName={"Machell"}*/}
-                {/*    message={"You there? You there?"}*/}
-                {/*    isOwner={true}*/}
-                {/*    time={"12:00"}*/}
-                {/*/>*/}
-                {/*<ChatBubble*/}
-                {/*    displayName={"Natacha"}*/}
-                {/*    message={"Yow whats up?"}*/}
-                {/*    isOwner={false}*/}
-                {/*    time={"12:01"}*/}
-                {/*/>*/}
-                {/*<ChatBubble*/}
-                {/*    displayName={"Machell"}*/}
-                {/*    message={"Party later?"}*/}
-                {/*    isOwner={true}*/}
-                {/*    time={"12:02"}*/}
-                {/*/>*/}
-                {/*<ChatNotification*/}
-                {/*    notification={'Sash joined the chat'}*/}
-                {/*    time={'12:03'}*/}
-                {/*/>*/}
-                {/*<ChatBubble*/}
-                {/*    displayName={"Sasha"}*/}
-                {/*    message={"YEA MANN. ROAD WE SEH!!"}*/}
-                {/*    isOwner={false}*/}
-                {/*    time={"12:04"}*/}
-                {/*/>*/}
             </Stack>
         </Paper>
     );

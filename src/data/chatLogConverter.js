@@ -21,8 +21,24 @@ const convertChatLogEventsToChatRoomEvents = (chatLogEvents) => {
     const eventsGroupedByUserId = groupEventsByUserId(eventsWithUserData);
 
     // Step 4: Convert each the Chat log event into a ChatRoom event
-    return chatLogEvents.map(event => convertChatLogEventToChatRoomEvent(event, messagesGroupedById, eventsGroupedByUserId));
+    const chatRoomEventsThatContainDuplicates = chatLogEvents.map(event => convertChatLogEventToChatRoomEvent(event, messagesGroupedById, eventsGroupedByUserId));
+    return removeDuplicateEvents(chatRoomEventsThatContainDuplicates);
+
 };
+
+const removeDuplicateEvents = (chatRoomEventsThatContainDuplicates) => {
+
+    // We're grouping the events by their deltas so that I can get the latest value
+    const chatRoomEventsGroupedByDelta = chatRoomEventsThatContainDuplicates.reduce((acc, event) => {
+        acc[event.payload.delta] = acc[event.payload.delta] ? [...acc[event.payload.delta], event] : [event]
+        return acc
+    }, {});
+
+    // Picks the latest event
+    return Object.values(chatRoomEventsGroupedByDelta)
+        .map(events => events[events.length - 1]); // We're only concerned with the last event
+
+}
 
 /**
  * Sorts the chat log events based on their delta(timestamp)

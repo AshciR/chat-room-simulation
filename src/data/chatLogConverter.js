@@ -7,7 +7,7 @@
  * @param chatLogEvents {*[]}
  * @return {*[]}
  */
-const convertChatLogEventToChatRoomEvent = (chatLogEvents) => {
+const convertChatLogEventsToChatRoomEvents = (chatLogEvents) => {
 
     // Step 1: We have to sort the events based on the delta (timestamp)
     const sortedChatLogEvents = sortChatLogEvents(chatLogEvents);
@@ -21,10 +21,7 @@ const convertChatLogEventToChatRoomEvent = (chatLogEvents) => {
     const eventsGroupedByUserId = groupEventsByUserId(eventsWithUserData);
 
     // Step 4: Convert each the Chat log event into a ChatRoom event
-
-    // Step 5: Return the array of the ChatRoom events
-
-    return sortedChatLogEvents;
+    return chatLogEvents.map(event => convertChatLogEventToChatRoomEvent(event, messagesGroupedById, eventsGroupedByUserId));
 };
 
 /**
@@ -122,10 +119,87 @@ const groupEventsByUserId = (eventsWithUsers) => {
 
 };
 
+/**
+ * Converts from a chat log event (the provided schema)
+ * into a chat stream event (my representation of the data).
+ *
+ * Here's my train of thought, I want to display the final
+ * state of the messages and notifications as a chat window,
+ * similar to iMessage, WhatsApp, or Telegram.
+ *
+ * To accomplish this, I am converting the chat log events
+ * into an object convenient for the UI components.
+ *
+ * From the perspective of UI component there are 2 types of events:
+ * 1. A message event, e.g. Taco: "Hello!"
+ * 2. A notification event, change of the chat room state. E.g. "Pete connected to the chat"
+ *
+ * @param chatLogEvent the original chat log object
+ * @param eventsGroupedByMessageId
+ * @param eventsGroupedByUserId
+ * @return {*} chatroom object for UI component
+ */
+const convertChatLogEventToChatRoomEvent = (chatLogEvent, eventsGroupedByMessageId, eventsGroupedByUserId) => {
+
+    // We have 2 types of events: message events and notification events.
+    // If it's not a message event, I'm treating it as a notification event.
+    const isMessageEvent = chatLogEvent.payload.type === 'message';
+    return isMessageEvent ? convertChatLogEventToChatRoomMessageEvent(chatLogEvent, eventsGroupedByMessageId) :
+        convertChatLogEventToNotificationEvent(chatLogEvent, eventsGroupedByUserId);
+
+};
+
+const convertChatLogEventToChatRoomMessageEvent = (chatLogEvent, eventsGroupedByMessageId) => {
+
+    // For messages, we're only concerned with the latest state of the message
+    // Because we have them grouped by message id, we can grab the last event from the Map's value
+    // E.g. {1: [create, update, delete]} -- we'll grab the delete event.
+    const messageEvents = eventsGroupedByMessageId[chatLogEvent.payload.message.id];
+    const latestMessageEvent = messageEvents[messageEvents.length - 1];
+
+    // If the message was updated or deleted, then it was edited
+    const wasEdited = latestMessageEvent.payload.type !== 'message';
+
+    // If the message was deleted, we'll return a special message
+    const determineMessageContent = {
+        'message': latestMessageEvent.payload.message.text,
+        'update': latestMessageEvent.payload.message.text,
+        'delete': 'Message was deleted'
+    }
+
+    // This model is what the ChatRoom and ChatBubble UI components will consume
+    return {
+        type: 'chatRoomMessage',
+        payload: {
+            displayName: chatLogEvent.payload.user.display_name,
+            message: determineMessageContent[latestMessageEvent.payload.type],
+            time: latestMessageEvent.delta,
+            wasEdited: wasEdited
+        }
+    };
+
+};
+
+const convertChatLogEventToNotificationEvent = (chatLogEvent) => {
+
+    // TODO: Replace with correct logic
+    return {
+        type: 'notification',
+        payload: {
+            delta: chatLogEvent.delta,
+            sender: chatLogEvent.payload.user.display_name,
+            message: chatLogEvent.payload.message.text
+        }
+    };
+
+};
+
 export default convertChatLogEventToChatRoomEvent;
+
 // Ideally, I'd love if some of these methods were only exposed within this file
 // But, I need to export them to write unit tests.
 export {
     sortChatLogEvents, filterMessageEvents, groupEventsByMessageId,
-    filterEventsWithUserData, groupEventsByUserId
+    filterEventsWithUserData, groupEventsByUserId,
+    convertChatLogEventToChatRoomMessageEvent
 };

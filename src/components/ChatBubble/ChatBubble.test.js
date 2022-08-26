@@ -15,7 +15,7 @@ describe('ChatBubble tests', () => {
 
         // When: The Chat Bubble renders with proper data
         render(<ChatBubble
-            userName={message.userName}
+            displayName={message.userName}
             message={message.content}
             isOwner={true}
             time={message.time}

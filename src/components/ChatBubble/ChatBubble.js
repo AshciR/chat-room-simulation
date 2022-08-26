@@ -1,6 +1,6 @@
 import {Avatar, Box, Chip, Typography} from "@mui/material";
 
-const ChatBubble = ({userName, message, isOwner, time}) => {
+const ChatBubble = ({displayName, message, isOwner, time, isEdited}) => {
 
     return (
         <Box
@@ -17,10 +17,10 @@ const ChatBubble = ({userName, message, isOwner, time}) => {
                     alignSelf: isOwner ? "flex-end" : "flex-start"
                 }}
             >
-                {userName}
+                {displayName}
             </Typography>
             <Chip
-                avatar={<Avatar>{userName.charAt(0)}</Avatar>}
+                avatar={<Avatar>{displayName.charAt(0)}</Avatar>}
                 label={message}
                 sx={{
                     maxWidth: 300
@@ -34,7 +34,7 @@ const ChatBubble = ({userName, message, isOwner, time}) => {
                     alignSelf: isOwner ? "flex-end" : "flex-start"
                 }}
             >
-                {`Delivered at: ${time}`}
+                {isEdited ? `Edited at: ${time}` : `Delivered at: ${time}`}
             </Typography>
         </Box>
     )

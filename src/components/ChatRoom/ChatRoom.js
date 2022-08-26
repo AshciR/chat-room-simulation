@@ -18,19 +18,19 @@ const ChatRoom = () => {
                 spacing={1}
             >
                 <ChatBubble
-                    userName={"Machell"}
+                    displayName={"Machell"}
                     message={"You there? You there?"}
                     isOwner={true}
                     time={"12:00"}
                 />
                 <ChatBubble
-                    userName={"Natacha"}
+                    displayName={"Natacha"}
                     message={"Yow whats up?"}
                     isOwner={false}
                     time={"12:01"}
                 />
                 <ChatBubble
-                    userName={"Machell"}
+                    displayName={"Machell"}
                     message={"Party later?"}
                     isOwner={true}
                     time={"12:02"}
@@ -45,7 +45,7 @@ const ChatRoom = () => {
                     Sash joined the chat
                 </Typography>
                 <ChatBubble
-                    userName={"Sasha"}
+                    displayName={"Sasha"}
                     message={"YEA MANN. ROAD WE SEH!!"}
                     isOwner={false}
                     time={"12:04"}

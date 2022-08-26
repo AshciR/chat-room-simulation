@@ -1,4 +1,5 @@
 import {
+    convertChatLogEventToChatRoomMessageEvent,
     filterEventsWithUserData,
     filterMessageEvents,
     groupEventsByMessageId,
@@ -89,7 +90,7 @@ describe('chatLogConverter tests', () => {
         const messageEvents = filterMessageEvents(getMockChatLogEvents);
 
         // Then: The array should only have message events
-        expect(messageEvents.length).toBe(5);
+        expect(messageEvents.length).toBe(6);
 
         // And: The update message event should be present
         const updateMessage = messageEvents.find(event => event.delta === 7000);
@@ -130,7 +131,7 @@ describe('chatLogConverter tests', () => {
         const userDataEvents = filterEventsWithUserData(getMockChatLogEvents);
 
         // Then: The array should only have message events
-        expect(userDataEvents.length).toBe(6);
+        expect(userDataEvents.length).toBe(7);
 
         // And: The update user event should be present
         const updatedUser = userDataEvents.find(event => event.delta === 6600);
@@ -151,6 +152,87 @@ describe('chatLogConverter tests', () => {
         expect(messageEventsGroupedByUserId).toStrictEqual(getExpectedEventGroupedByUserId);
 
     })
+
+    it('converts chat log message event into chat room message event', () => {
+
+        // Given: We have a message chat log event
+        const chatLogMsgEvent = getMockChatLogEvents[0];
+
+        // And: The messages grouped by id
+        const messageEvents = filterMessageEvents(getMockChatLogEvents);
+        const messageEventsGroupedById = groupEventsByMessageId(messageEvents);
+
+        // When: It is converted into a chat room event
+        const chatRoomMsgEvent = convertChatLogEventToChatRoomMessageEvent(chatLogMsgEvent, messageEventsGroupedById)
+
+        // Then: It should have the correct values
+        const expectedChatRoomMsgEvent = {
+            type: 'chatRoomMessage',
+            payload: {
+                displayName: 'Taco Spolsky',
+                message: 'Hello!',
+                time: 1000,
+                wasEdited: false
+            }
+        };
+
+        expect(chatRoomMsgEvent).toStrictEqual(expectedChatRoomMsgEvent);
+
+    });
+
+    it('converts chat log update message event into chat room message event', () => {
+
+        // Given: We have a message chat log event
+        const chatLogUpdatedMsgEvent = getMockChatLogEvents[3]; // This message was updated
+
+        // And: The messages grouped by id
+        const messageEvents = filterMessageEvents(getMockChatLogEvents);
+        const messageEventsGroupedById = groupEventsByMessageId(messageEvents);
+
+        // When: It is converted into a chat room event
+        const chatRoomMsgEvent = convertChatLogEventToChatRoomMessageEvent(chatLogUpdatedMsgEvent, messageEventsGroupedById)
+
+        // Then: It should have the correct values
+        const expectedChatRoomMsgEvent = {
+            type: 'chatRoomMessage',
+            payload: {
+                displayName: 'Pete the Computer',
+                message: "Seems like it's working find … for *edits* also",
+                time: 7000,
+                wasEdited: true
+            }
+        };
+
+        expect(chatRoomMsgEvent).toStrictEqual(expectedChatRoomMsgEvent);
+
+    });
+
+    it('converts chat log delete message event into chat room message event', () => {
+
+        // Given: We have a message chat log event
+        const chatLogUpdatedMsgEvent = getMockChatLogEvents[6]; // This message was deleted
+
+        // And: The messages grouped by id
+        const messageEvents = filterMessageEvents(getMockChatLogEvents);
+        const messageEventsGroupedById = groupEventsByMessageId(messageEvents);
+
+        // When: It is converted into a chat room event
+        const chatRoomMsgEvent = convertChatLogEventToChatRoomMessageEvent(chatLogUpdatedMsgEvent, messageEventsGroupedById)
+
+        // Then: It should have the correct values
+        const expectedChatRoomMsgEvent = {
+            type: 'chatRoomMessage',
+            payload: {
+                displayName: 'Taco Spolsky',
+                message: "Message was deleted",
+                time: 12000,
+                wasEdited: true
+            }
+        };
+
+        expect(chatRoomMsgEvent).toStrictEqual(expectedChatRoomMsgEvent);
+
+    });
 
 });
 
@@ -184,6 +266,14 @@ const getMockChatLogEvents = [
     {delta: 6600, payload: {type: 'update', user: {id: 2, username: 'chorizothecat', display_name: 'Chorizo the Cat'}}},
     // Update message
     {delta: 7000, payload: {type: 'update', message: {id: 6, text: "Seems like it's working find … for *edits* also"}}},
+    {
+        delta: 8250,
+        payload: {
+            type: 'message',
+            user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'},
+            message: {id: 9, text: "We _know_ you're a cat @chorizothecat :facepalm:"}
+        }
+    },
     {delta: 12000, payload: {type: 'delete', message: {id: 9}}},
     {delta: 31002, payload: {type: 'disconnect', user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'}}},
 ];
@@ -223,7 +313,17 @@ const getExpectedMessagesGroupedById = {
             payload: {type: 'update', message: {id: 6, text: "Seems like it's working find … for *edits* also"}}
         },
     ],
-    9: [{delta: 12000, payload: {type: 'delete', message: {id: 9}}}]
+    9: [
+        {
+            delta: 8250,
+            payload: {
+                type: 'message',
+                user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'},
+                message: {id: 9, text: "We _know_ you're a cat @chorizothecat :facepalm:"}
+            }
+        },
+        {delta: 12000, payload: {type: 'delete', message: {id: 9}}}
+    ]
 };
 
 const getExpectedEventGroupedByUserId = {
@@ -234,6 +334,13 @@ const getExpectedEventGroupedByUserId = {
                 type: 'message',
                 user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'},
                 message: {id: 1, text: "Hello!"}
+            }
+        },
+        {delta: 8250,
+            payload: {
+                type: 'message',
+                user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'},
+                message: {id: 9, text: "We _know_ you're a cat @chorizothecat :facepalm:"}
             }
         },
         {delta: 31002, payload: {type: 'disconnect', user: {id: 1, user_name: 'taco', display_name: 'Taco Spolsky'}}},

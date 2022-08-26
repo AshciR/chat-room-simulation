@@ -172,7 +172,7 @@ const convertChatLogEventToChatRoomMessageEvent = (chatLogEvent, eventsGroupedBy
         type: 'chatRoomMessage',
         payload: {
             displayName: chatLogEvent.payload.user.display_name,
-            message: determineMessageContent[latestMessageEvent.payload.type],
+            message: determineMessageContent[latestMessageEvent.payload.type] || 'Whoops! Something went wrong on our end.',
             time: latestMessageEvent.delta,
             wasEdited: wasEdited
         }
@@ -180,18 +180,45 @@ const convertChatLogEventToChatRoomMessageEvent = (chatLogEvent, eventsGroupedBy
 
 };
 
-const convertChatLogEventToNotificationEvent = (chatLogEvent) => {
+const convertChatLogEventToNotificationEvent = (chatLogEvent, eventsGroupedByUserId) => {
 
-    // TODO: Replace with correct logic
     return {
-        type: 'notification',
+        type: 'chatRoomNotification',
         payload: {
             delta: chatLogEvent.delta,
-            sender: chatLogEvent.payload.user.display_name,
-            message: chatLogEvent.payload.message.text
+            notification: determineNotification(chatLogEvent, eventsGroupedByUserId[chatLogEvent.payload.user.id])
         }
     };
 
+};
+
+const determineNotification = (chatLogEvent, eventsForUser) => {
+
+    switch (chatLogEvent.payload.type) {
+        case 'connect':
+            return `${chatLogEvent.payload.user.display_name} joined the chat`
+        case 'update':
+            // We know that this update is not a message update based
+            // logic in convertChatLogEventToChatRoomEvent(), so it has to be a user update
+            return constructDisplayNameUpdatedMessage(chatLogEvent, eventsForUser)
+        case 'disconnect':
+            return `${chatLogEvent.payload.user.display_name} left the chat`
+        default:
+            return 'Whoops! Something went wrong on our end.';
+    }
+
+};
+
+const constructDisplayNameUpdatedMessage = (chatLogEvent, eventsForUser) => {
+    // I'm making an assumption of an invariant,
+    // if there's an update to display name,
+    // there must be at least 1 prior event which introduced the user to the chat log
+    const indexOfEventBeforeNameUpdate = eventsForUser.indexOf(chatLogEvent) - 1;
+
+    // Get the last display name before the change.
+    const eventBeforeTheDisplayNameChange = eventsForUser[indexOfEventBeforeNameUpdate]
+
+    return `${eventBeforeTheDisplayNameChange.payload.user.display_name} changed their name to ${chatLogEvent.payload.user.display_name}`;
 };
 
 export default convertChatLogEventToChatRoomEvent;
@@ -201,5 +228,5 @@ export default convertChatLogEventToChatRoomEvent;
 export {
     sortChatLogEvents, filterMessageEvents, groupEventsByMessageId,
     filterEventsWithUserData, groupEventsByUserId,
-    convertChatLogEventToChatRoomMessageEvent
+    convertChatLogEventToChatRoomMessageEvent, convertChatLogEventToNotificationEvent
 };

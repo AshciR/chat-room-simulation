@@ -1,5 +1,6 @@
 import {Paper, Stack, Typography} from "@mui/material";
 import ChatBubble from "../ChatBubble/ChatBubble";
+import ChatNotification from "../ChatNotification/ChatNotification";
 
 // TODO: Add parameters to the function when I figure out how to manipulate the chat log
 const ChatRoom = () => {
@@ -35,15 +36,10 @@ const ChatRoom = () => {
                     isOwner={true}
                     time={"12:02"}
                 />
-                {/*Create Notification Component*/}
-                <Typography
-                    variant="h6"
-                    sx={{
-                        alignSelf: "center"
-                    }}
-                >
-                    Sash joined the chat
-                </Typography>
+                <ChatNotification
+                    notification={'Sash joined the chat'}
+                    time={'12:03'}
+                />
                 <ChatBubble
                     displayName={"Sasha"}
                     message={"YEA MANN. ROAD WE SEH!!"}

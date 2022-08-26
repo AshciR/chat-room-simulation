@@ -185,8 +185,8 @@ const convertChatLogEventToNotificationEvent = (chatLogEvent, eventsGroupedByUse
     return {
         type: 'chatRoomNotification',
         payload: {
-            delta: chatLogEvent.delta,
-            notification: determineNotification(chatLogEvent, eventsGroupedByUserId[chatLogEvent.payload.user.id])
+            notification: determineNotification(chatLogEvent, eventsGroupedByUserId[chatLogEvent.payload.user.id]),
+            delta: chatLogEvent.delta
         }
     };
 

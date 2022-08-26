@@ -9,14 +9,77 @@
  */
 const convertChatLogEventToChatRoomEvent = (chatLogEvents) => {
 
+    // Step 1: We have to sort the events based on the delta (timestamp)
     const sortedChatLogEvents = sortChatLogEvents(chatLogEvents);
+
+    // Step 2: Group the Message events so that I can track the state transitions
+    const messageEvents = filterMessageEvents(sortedChatLogEvents);
+    const messagesGroupedById = groupEventsByMessageId(messageEvents);
+
+    // Step 3: Group the User events so that I can track the state transitions
+
+    // Step 4: Convert each the Chat log event into a ChatRoom event
+
+    // Step 5: Return the array of the ChatRoom events
 
     return sortedChatLogEvents;
 };
 
+/**
+ * Sorts the chat log events based on their delta(timestamp)
+ * @param chatLogEvents {*[]}
+ * @return {*[]}
+ */
 const sortChatLogEvents = chatLogEvents => {
     return chatLogEvents.sort((event1, event2) => event1.delta - event2.delta);
 };
 
+/**
+ * Filters out the chat log events that have
+ * message data in the payload.
+ * @param events the chat log events
+ * @return {*[]}
+ */
+const filterMessageEvents = (events) => {
+    return events.filter(event => doesEventHaveMessageDataInPayload(event));
+};
+
+/**
+ * Determines if a chat log event has message data in it
+ * @param event chat log event
+ * @return {boolean} true if event the payload has message data in the payload
+ */
+const doesEventHaveMessageDataInPayload = (event) => {
+    // Self-explanatory, If the payload has a 'message' key then
+    // I know it's a message event
+    return Object.keys(event.payload).includes('message');
+}
+
+/**
+ * Creating a Map/Dictionary where the key
+ * is the message id and the value is the events
+ * associated with the message.
+ * @param messageEvents events that have message data in the payload
+ * @return {*[]}
+ */
+const groupEventsByMessageId = (messageEvents) => {
+
+    // I'm using reduce instead of a traditional for loop
+    // because I advocate for functional programming
+    // and non-mutational code.
+    //
+    // It'll create a Map,
+    // check if the message id is already in the map
+    // if true, add the event to the list
+    // if not, create a new list and add the event
+    return messageEvents.reduce((acc, event) => {
+        acc[event.payload.message.id] = acc[event.payload.message.id] ? [...acc[event.payload.message.id], event] : [event]
+        return acc
+    }, {});
+
+};
+
 export default convertChatLogEventToChatRoomEvent;
-export {sortChatLogEvents};
+// Ideally, I'd love if some of these methods were only exposed within this file
+// But, I need to export them to write unit tests.
+export {sortChatLogEvents, filterMessageEvents, groupEventsByMessageId};

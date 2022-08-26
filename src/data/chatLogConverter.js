@@ -143,7 +143,7 @@ const convertChatLogEventToChatRoomEvent = (chatLogEvent, eventsGroupedByMessage
 
     // We have 2 types of events: message events and notification events.
     // If it's not a message event, I'm treating it as a notification event.
-    const isMessageEvent = chatLogEvent.payload.type === 'message';
+    const isMessageEvent = doesEventHaveMessageDataInPayload(chatLogEvent);
     return isMessageEvent ? convertChatLogEventToChatRoomMessageEvent(chatLogEvent, eventsGroupedByMessageId) :
         convertChatLogEventToNotificationEvent(chatLogEvent, eventsGroupedByUserId);
 
@@ -167,13 +167,18 @@ const convertChatLogEventToChatRoomMessageEvent = (chatLogEvent, eventsGroupedBy
         'delete': 'Message was deleted'
     }
 
+    // The update and delete payloads don't contain the user id, but
+    // we need it for the UI chat bubble component
+    const messageEventWithUserData = messageEvents.find(event => event.payload.type === 'message');
+
     // This model is what the ChatRoom and ChatBubble UI components will consume
     return {
         type: 'chatRoomMessage',
         payload: {
-            displayName: chatLogEvent.payload.user.display_name,
+            userId: messageEventWithUserData.payload.user.id,
+            displayName: messageEventWithUserData.payload.user.display_name,
             message: determineMessageContent[latestMessageEvent.payload.type] || 'Whoops! Something went wrong on our end.',
-            time: latestMessageEvent.delta,
+            delta: latestMessageEvent.delta,
             wasEdited: wasEdited
         }
     };
@@ -185,14 +190,14 @@ const convertChatLogEventToNotificationEvent = (chatLogEvent, eventsGroupedByUse
     return {
         type: 'chatRoomNotification',
         payload: {
-            notification: determineNotification(chatLogEvent, eventsGroupedByUserId[chatLogEvent.payload.user.id]),
+            notification: determineTypeOfNotification(chatLogEvent, eventsGroupedByUserId[chatLogEvent.payload.user.id]),
             delta: chatLogEvent.delta
         }
     };
 
 };
 
-const determineNotification = (chatLogEvent, eventsForUser) => {
+const determineTypeOfNotification = (chatLogEvent, eventsForUser) => {
 
     switch (chatLogEvent.payload.type) {
         case 'connect':
@@ -221,12 +226,13 @@ const constructDisplayNameUpdatedMessage = (chatLogEvent, eventsForUser) => {
     return `${eventBeforeTheDisplayNameChange.payload.user.display_name} changed their name to ${chatLogEvent.payload.user.display_name}`;
 };
 
-export default convertChatLogEventToChatRoomEvent;
+export default convertChatLogEventsToChatRoomEvents;
 
 // Ideally, I'd love if some of these methods were only exposed within this file
 // But, I need to export them to write unit tests.
 export {
     sortChatLogEvents, filterMessageEvents, groupEventsByMessageId,
     filterEventsWithUserData, groupEventsByUserId,
-    convertChatLogEventToChatRoomMessageEvent, convertChatLogEventToNotificationEvent
+    convertChatLogEventToChatRoomEvent, convertChatLogEventToChatRoomMessageEvent,
+    convertChatLogEventToNotificationEvent
 };

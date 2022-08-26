@@ -1,4 +1,5 @@
-import {
+import convertChatLogEventsToChatRoomEvents, {
+    convertChatLogEventToChatRoomEvent,
     convertChatLogEventToChatRoomMessageEvent,
     convertChatLogEventToNotificationEvent,
     filterEventsWithUserData,
@@ -7,6 +8,7 @@ import {
     groupEventsByUserId,
     sortChatLogEvents
 } from "./chatLogConverter";
+import getChatLogEvents from "./chatRoomData";
 
 describe('chatLogConverter tests', () => {
 
@@ -170,9 +172,10 @@ describe('chatLogConverter tests', () => {
         const expectedChatRoomMsgEvent = {
             type: 'chatRoomMessage',
             payload: {
+                userId: 1,
                 displayName: 'Taco Spolsky',
                 message: 'Hello!',
-                time: 1000,
+                delta: 1000,
                 wasEdited: false
             }
         };
@@ -197,9 +200,10 @@ describe('chatLogConverter tests', () => {
         const expectedChatRoomMsgEvent = {
             type: 'chatRoomMessage',
             payload: {
+                userId: 3,
                 displayName: 'Pete the Computer',
                 message: "Seems like it's working find … for *edits* also",
-                time: 7000,
+                delta: 7000,
                 wasEdited: true
             }
         };
@@ -224,9 +228,10 @@ describe('chatLogConverter tests', () => {
         const expectedChatRoomMsgEvent = {
             type: 'chatRoomMessage',
             payload: {
+                userId: 1,
                 displayName: 'Taco Spolsky',
                 message: "Message was deleted",
-                time: 12000,
+                delta: 12000,
                 wasEdited: true
             }
         };
@@ -309,6 +314,110 @@ describe('chatLogConverter tests', () => {
         expect(chatRoomNotificationEvent).toStrictEqual(expectedChatRoomNotificationEvent);
 
     });
+
+    it('converts a chat log event into correct chat room message event', () => {
+        // Given: We have a chat log message event
+        const chatLogMsgEvent = getMockChatLogEvents[0];
+
+        // And: The messages and users grouped by their ids
+        const messageEvents = filterMessageEvents(getMockChatLogEvents);
+        const messageEventsGroupedById = groupEventsByMessageId(messageEvents);
+
+        const userEvents = filterEventsWithUserData(getMockChatLogEvents);
+        const eventsGroupedByUserId = groupEventsByUserId(userEvents);
+
+        // When: We convert it to a chat room event
+        const chatRoomEvent = convertChatLogEventToChatRoomEvent(chatLogMsgEvent, messageEventsGroupedById, eventsGroupedByUserId);
+
+        // Then: It should have the correct data
+        const expectedChatRoomMsgEvent = {
+            type: 'chatRoomMessage',
+            payload: {
+                userId: 1,
+                displayName: 'Taco Spolsky',
+                message: 'Hello!',
+                delta: 1000,
+                wasEdited: false
+            }
+        };
+
+        expect(chatRoomEvent).toStrictEqual(expectedChatRoomMsgEvent);
+
+    });
+
+    it('converts a chat log event into correct chat room notification event', () => {
+
+        // Given: We have a chat log connect event
+        const chatLogConnectEvent = getMockChatLogEvents[2];
+
+        // And: The messages and users grouped by their ids
+        const messageEvents = filterMessageEvents(getMockChatLogEvents);
+        const messageEventsGroupedById = groupEventsByMessageId(messageEvents);
+
+        const userEvents = filterEventsWithUserData(getMockChatLogEvents);
+        const eventsGroupedByUserId = groupEventsByUserId(userEvents);
+
+        // When: We convert it to a chat room event
+        const chatRoomEvent = convertChatLogEventToChatRoomEvent(chatLogConnectEvent, messageEventsGroupedById, eventsGroupedByUserId);
+
+        // Then: It should have the correct data
+        const expectedChatRoomNotificationEvent = {
+            type: 'chatRoomNotification',
+            payload: {
+                delta: 2100,
+                notification: 'Pete the Computer joined the chat',
+            }
+        };
+
+        expect(chatRoomEvent).toStrictEqual(expectedChatRoomNotificationEvent);
+    })
+
+    it('converts all chat log events into their correct chat room notification events', () => {
+
+        // Given: We have a chat log events
+        const chatLogConnectEvents = [
+            getMockChatLogEvents[0], // Message event
+            getMockChatLogEvents[2]  // User connect event
+        ];
+
+        // When: We convert it to a chat room event
+        const chatRoomEvents = convertChatLogEventsToChatRoomEvents(chatLogConnectEvents);
+
+        // Then: It should have the correct data
+        const expectedChatRoomNotificationEvents = [
+            {
+                type: 'chatRoomMessage',
+                payload: {
+                    userId: 1,
+                    displayName: 'Taco Spolsky',
+                    message: 'Hello!',
+                    delta: 1000,
+                    wasEdited: false
+                }
+            },
+            {
+                type: 'chatRoomNotification',
+                payload: {
+                    delta: 2100,
+                    notification: 'Pete the Computer joined the chat',
+                }
+            }
+        ];
+
+        expect(chatRoomEvents).toStrictEqual(expectedChatRoomNotificationEvents);
+    });
+
+    it('converts all chat log events into their correct chat room notification events using stub data', () => {
+
+        // Given: We have a chat log events
+        const chatLogConnectEvents = getChatLogEvents();
+
+        // When: We convert it to a chat room event
+        const chatRoomEvents = convertChatLogEventsToChatRoomEvents(chatLogConnectEvents);
+
+        // Then: It should have the correct data
+        expect(chatRoomEvents.length).toBe(28);
+    })
 
 });
 

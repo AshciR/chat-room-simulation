@@ -1,10 +1,11 @@
-import getChatRoomEvents from "./chatRoomData";
+import chatRoomEvents from "./chatRoomData";
+import getChatLogEvents from "./chatRoomData";
 
 describe('chatRoomData tests', () => {
 
     it('has the correct number of events', () => {
         // Given: We have the simulated chat room data
-        const events = getChatRoomEvents;
+        const events = getChatLogEvents();
 
         // When: We count the number of events
         const numOfEvents = events.length;

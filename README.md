@@ -3,6 +3,8 @@ This is a [React](https://reactjs.org/) application that represents a Chat Room.
 At a high level, it will ingest a JSON object that represents
 a chat log, and display it in a visual format.
 
+![Chat Room](chat-room.png "Chat Room")
+
 ### What is this repository for? ###
 This repository was created as an interview project to asset candidates.
 
@@ -70,11 +72,15 @@ You don't have to ever use `eject`. The curated feature set is suitable for smal
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### Contribution guidelines ###
-
-#### Writing tests
+### Writing tests
 The project uses [Jest](https://jestjs.io/) as the underlying test runner.
 All `.js` files should have an accompanying `*.test.js` file.
 
 ### Who do I talk to? ###
 The interviewer and me, (I guess 😅)
+
+### Future Improvements
+- Add functionality for linking to URLs in message
+- Add functionality for formatting messages. E.g. `_I_` would be italicized
+- Add functionality for emojis. E.g. `:sob:` be 😭
+- Highlight whenever a user is mentioned `@Jake`

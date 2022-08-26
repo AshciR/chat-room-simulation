@@ -5,7 +5,7 @@ const ChatNotification = ({notification, time}) => {
     const displayNotification = `${notification} at ${time}`
 
     return (
-        <Box>
+        <Box data-testid="test-chat-notification">
             <Alert severity="info">
                 {displayNotification}
             </Alert>

@@ -9,6 +9,7 @@ const ChatBubble = ({displayName, message, isOwner, time, isEdited}) => {
                 flexDirection: "column",
                 alignSelf: isOwner ? "flex-end" : "flex-start"
             }}
+            data-testid="test-chat-bubble"
         >
             <Typography
                 sx={{
@@ -22,9 +23,6 @@ const ChatBubble = ({displayName, message, isOwner, time, isEdited}) => {
             <Chip
                 avatar={<Avatar>{displayName.charAt(0)}</Avatar>}
                 label={message}
-                sx={{
-                    maxWidth: 300
-                }}
                 color={isOwner ? "primary" : "secondary"}
             />
             <Typography

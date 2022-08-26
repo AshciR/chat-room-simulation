@@ -9,6 +9,10 @@ function App() {
     const chatRoomNotifications = convertChatLogEventsToChatRoomEvents(getChatLogEvents());
     const idOfUserWhoOwnsTheDevice = 1; // Taco whose id is 1
 
+    // Decided to do this as bonus. You can pass in a ISO-8601 timestamp as the start time
+    // then the deltas will calculate the chat times.
+    const startTimeOfTheRoom = "2022-08-26T12:00:00";
+
     return (
         <Box sx={{
             display: 'flex',
@@ -20,6 +24,7 @@ function App() {
                 data-testid="test-chat-room"
                 chatRoomNotifications={chatRoomNotifications}
                 userId={idOfUserWhoOwnsTheDevice}
+                startTime={startTimeOfTheRoom}
             />
         </Box>
     );

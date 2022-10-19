@@ -1,12 +1,9 @@
-# README #
+# Ashcir IO Chat Room App
 This is a [React](https://reactjs.org/) application that represents a Chat Room.
 At a high level, it will ingest a JSON object that represents
 a chat log, and display it in a visual format.
 
 ![Chat Room](chat-room.png "Chat Room")
-
-### What is this repository for? ###
-This repository was created as an interview project to asset candidates.
 
 ### Dependencies
 - NodeJS - was built using version `14.17.3`. Would recommend using the same Major version
@@ -75,9 +72,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### Writing tests
 The project uses [Jest](https://jestjs.io/) as the underlying test runner.
 All `.js` files should have an accompanying `*.test.js` file.
-
-### Who do I talk to? ###
-The interviewer and me, (I guess 😅)
 
 ### Future Improvements
 - Add functionality for linking to URLs in message
